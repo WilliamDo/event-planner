@@ -1,0 +1,50 @@
+
+body {
+  background-color: #FAFAFA;
+}
+
+#locationMap {
+  height: 240px;
+}
+
+#pageContent {
+  margin-top: 10px;
+}
+
+.ep-summary-container {
+  border: 1px solid #E1E1E1;
+  background-color: #FFFFFF;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+.ep-summary-header {
+  font-size: 1.2em;
+  font-weight: 900;
+}
+
+.ep-post {
+  border: 1px solid #E1E1E1;
+  background-color: #FFFFFF;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+.ep-post-header {
+  overflow: auto;
+}
+
+.ep-post-thumbnail {
+  float: left;
+  margin-right: 10px;
+}
+
+.ep-post-name {
+  font-size: 1.2em;
+  font-weight: 900;
+}
+
+.ep-post-content {
+  margin-top: 10px;
+  font-size: 1.2em;
+}
