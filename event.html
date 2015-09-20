@@ -48,18 +48,12 @@
         <div class="col-sm-4">
           <div class="ep-summary-container">
             <div class="ep-summary-header">Guests</div>
-            <img src="FFXIII_Icon2_48x48.jpg">
-            <img src="FFXIII_Icon3_48x48.jpg">
-            <img src="FFXIII_Icon4_48x48.jpg">
-            <img src="FFXIII_Icon5_48x48.jpg">
-            <img src="FFXIII_Icon6_48x48.jpg">
-            <img src="FFXIII_Icon7_48x48.jpg">
-            <img src="FFXIII_Icon8_48x48.jpg">
+            <div id="invitationsContainer"></div>
           </div>
 
           <div class="ep-summary-container">
             <div class="ep-summary-header">Time</div>
-            <div>Thursday 23 June 2016</div>
+            <div id="dateTimeContainer"></div>
           </div>
 
           <div class="ep-summary-container">
@@ -88,7 +82,7 @@
     },
 
     init: function() {
-
+      this.loadPosts();
     },
 
     /*
@@ -143,7 +137,59 @@
       });
     }
 
+  };
+
+  var InvitationsWidget = {
+    config: {
+      container: $("#invitationsContainer")
+    },
+
+    init: function() {
+      this.loadInvitations();
+    },
+
+    loadInvitations: function() {
+      $.ajax({
+        url: "http://localhost:3000/invitations",
+        dataType: "json"
+      }).done(function(response) {
+        InvitationsWidget.config.container.empty();
+        var posts = response.map(function(url) {
+          return $("<img>", { class: "ep-post-thumbnail", src: url });
+        }).forEach(function(img) {
+          InvitationsWidget.config.container.append(img);
+        });
+      });
+    }
   }
+
+  var DateTimeWidget = {
+    config: {
+      container: $("#dateTimeContainer")
+    },
+
+    init: function() {
+      this.loadDateTime();
+    },
+
+    loadDateTime: function() {
+      $.ajax({
+        url: "http://localhost:3000/event/123/time",
+        dataType: "json"
+      }).done(function(response) {
+        DateTimeWidget.config.container.empty();
+        var date = new Date(response.time);
+        DateTimeWidget.config.container.text(date.toString());
+      });
+    }
+  }
+
+  $(document).ready(function() {
+    InvitationsWidget.init();
+    PostsWidget.init();
+    DateTimeWidget.init();
+  });
+
 
   var map;
   function initMap() {

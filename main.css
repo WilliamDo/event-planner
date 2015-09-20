@@ -11,6 +11,10 @@ body {
   margin-top: 10px;
 }
 
+#invitationsContainer {
+  overflow: auto;
+}
+
 .ep-summary-container {
   border: 1px solid #E1E1E1;
   background-color: #FFFFFF;
