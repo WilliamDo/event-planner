@@ -24,45 +24,59 @@
   <div class="container">
     <h1>Save Cocoon</h1>
 
-    <ul class="nav nav-tabs">
-      <li role="presentation" class="active"><a href="#">Event</a></li>
-      <li role="presentation"><a href="#">Guests</a></li>
-      <li role="presentation"><a href="#">Time</a></li>
-      <li role="presentation"><a href="#">Location</a></li>
+    <ul class="nav nav-tabs" role="tablist">
+      <li role="presentation" class="active"><a href="#tabSummary" aria-controls="tabSummary" role="tab" data-toggle="tab">Event</a></li>
+      <li role="presentation"><a href="#tabPeople" aria-controls="tabPeople" role="tab" data-toggle="tab">Guests</a></li>
+      <li role="presentation"><a href="#tabDate" aria-controls="tabDate" role="tab" data-toggle="tab">Time</a></li>
+      <li role="presentation"><a href="#tabLocation" aria-controls="tabLocation" role="tab" data-toggle="tab">Location</a></li>
     </ul>
 
-    <div id="pageContent">
+    <div id="pageContent" class="tab-content">
 
-      <div class="row">
-        <div class="col-sm-8">
+      <!-- Summary tab -->
+      <div role="tabpanel" class="tab-pane active" id="tabSummary">
+        <div class="row">
+          <div class="col-sm-8">
 
-          <div>
-            <input id="newPostContent" class="form-control" type="text" placeholder="Type a message">
-            <button onClick="PostsWidget.newPost()" class="btn btn-default" type="button">Post</button>
+            <div>
+              <input id="newPostContent" class="form-control" type="text" placeholder="Type a message">
+              <button onClick="PostsWidget.newPost()" class="btn btn-default" type="button">Post</button>
+            </div>
+
+            <!-- Container for posts -->
+            <div id="postsContainer"></div>
+
           </div>
+          <div class="col-sm-4">
+            <div class="ep-summary-container">
+              <div class="ep-summary-header">Guests</div>
+              <div id="invitationsContainer"></div>
+            </div>
 
-          <!-- Container for posts -->
-          <div id="postsContainer"></div>
+            <div class="ep-summary-container">
+              <div class="ep-summary-header">Time</div>
+              <div id="dateTimeContainer"></div>
+            </div>
 
-        </div>
-        <div class="col-sm-4">
-          <div class="ep-summary-container">
-            <div class="ep-summary-header">Guests</div>
-            <div id="invitationsContainer"></div>
+            <div class="ep-summary-container">
+              <div class="ep-summary-header">Location</div>
+              <div id ="locationMap"></div>
+            </div>
+
           </div>
-
-          <div class="ep-summary-container">
-            <div class="ep-summary-header">Time</div>
-            <div id="dateTimeContainer"></div>
-          </div>
-
-          <div class="ep-summary-container">
-            <div class="ep-summary-header">Location</div>
-            <div id ="locationMap"></div>
-          </div>
-
         </div>
       </div>
+
+      <!-- People tab -->
+      <div role="tabpanel" class="tab-pane" id="tabPeople">People</div>
+
+      <!-- Date tab -->
+      <div role="tabpanel" class="tab-pane" id="tabDate">Date</div>
+
+      <!-- Location tab -->
+      <div role="tabpanel" class="tab-pane" id="tabLocation">Location</div>
+
+
     </div>
 
   </div>
