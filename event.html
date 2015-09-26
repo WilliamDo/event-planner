@@ -71,27 +71,22 @@
       <div role="tabpanel" class="tab-pane" id="tabPeople">
         <div class="row">
           <div class="col-sm-8">
-            <div>
-
-              <div class="ep-guest-card"><img class="ep-post-thumbnail" src="FFXIII_Icon3_48x48.jpg"> Snow</div>
-              <div class="ep-guest-card"><img class="ep-post-thumbnail" src="FFXIII_Icon4_48x48.jpg"> Vanille</div>
-              <div class="ep-guest-card"><img class="ep-post-thumbnail" src="FFXIII_Icon6_48x48.jpg"> Serah</div>
-              <div class="ep-guest-card"><img class="ep-post-thumbnail" src="FFXIII_Icon7_48x48.jpg"> Hope</div>
-              <div class="ep-guest-card"><img class="ep-post-thumbnail" src="FFXIII_Icon8_48x48.jpg"> Fang</div>
-
-            </div>
+            <div id="peopleContainer"></div>
           </div>
           <div class="col-sm-4">
             <div class="ep-summary-container">
               <div class="ep-summary-header">Attending</div>
+              <div id="attendingContainer"></div>
             </div>
 
             <div class="ep-summary-container">
               <div class="ep-summary-header">Maybe</div>
+              <div id="maybeContainer"></div>
             </div>
 
             <div class="ep-summary-container">
               <div class="ep-summary-header">Declined</div>
+              <div id="declinedContainer"></div>
             </div>
           </div>
         </div>
@@ -195,8 +190,8 @@
         dataType: "json"
       }).done(function(response) {
         InvitationsWidget.config.container.empty();
-        var posts = response.map(function(url) {
-          return $("<img>", { class: "ep-post-thumbnail", src: url });
+        var posts = response.map(function(invitation) {
+          return $("<img>", { class: "ep-post-thumbnail", src: invitation.url });
         }).forEach(function(img) {
           InvitationsWidget.config.container.append(img);
         });
@@ -225,10 +220,63 @@
     }
   }
 
+  var PeopleWidget = {
+    config: {
+      container: $("#peopleContainer"),
+      containerAttending: $("#attendingContainer"),
+      containerMaybe: $("#maybeContainer"),
+      containerDeclined: $("#declinedContainer")
+    },
+
+    data: {
+      people: []
+    },
+
+    init: function() {
+      this.loadPeople();
+    },
+
+    loadPeople: function() {
+      $.ajax({
+        url: "http://localhost:3000/people",
+        dataType: "json"
+      }).done(function(response) {
+        PeopleWidget.config.container.empty();
+        response.map(function(person) {
+          var cardDiv = $("<div>", { class: "ep-guest-card" });
+          $("<img>", { class: "ep-post-thumbnail", src: person.url }).appendTo(cardDiv);
+          cardDiv.append(person.name);
+          cardDiv.click(function() {
+            alert(person.name);
+          });
+          return cardDiv;
+        }).forEach(function(p) {
+          PeopleWidget.config.container.append(p);
+        });
+
+        PeopleWidget.showSubList(PeopleWidget.config.containerAttending, function(person) { return person.state == 'attending' }, response);
+        PeopleWidget.showSubList(PeopleWidget.config.containerMaybe, function(person) { return person.state == 'maybe' }, response);
+        PeopleWidget.showSubList(PeopleWidget.config.containerDeclined, function(person) { return person.state == 'declined' }, response);
+      });
+    },
+
+    showSubList: function(container, predicate, data) {
+      container.empty();
+      data.filter(function(item) {
+        return predicate(item);
+      }).map(function(item) {
+        return $("<img>", { class: "ep-post-thumbnail", src: item.url });
+      }).forEach(function(item) {
+        container.append(item);
+      });
+    }
+  }
+
   $(document).ready(function() {
     InvitationsWidget.init();
     PostsWidget.init();
     DateTimeWidget.init();
+    PeopleWidget.init();
   });
 
 

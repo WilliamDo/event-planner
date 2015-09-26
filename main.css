@@ -11,7 +11,7 @@ body {
   margin-top: 10px;
 }
 
-#invitationsContainer {
+#invitationsContainer, #attendingContainer, #maybeContainer, #declinedContainer {
   overflow: auto;
 }
 
@@ -62,4 +62,9 @@ body {
   margin-right: 10px;
   margin-bottom: 10px;
   padding: 10px;
+}
+
+.ep-guest-card:hover {
+  background-color: aliceblue;
+  cursor: pointer;
 }
