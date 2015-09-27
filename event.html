@@ -71,6 +71,7 @@
       <div role="tabpanel" class="tab-pane" id="tabPeople">
         <div class="row">
           <div class="col-sm-8">
+            <button type="button" class="btn btn-default">Save</button>
             <div id="peopleContainer"></div>
           </div>
           <div class="col-sm-4">
@@ -247,11 +248,16 @@
           $("<img>", { class: "ep-post-thumbnail", src: person.url }).appendTo(cardDiv);
           cardDiv.append(person.name);
           cardDiv.click(function() {
-            alert(person.name);
+            PeopleWidget.toggleGuestInvitation(person.name);
           });
-          return cardDiv;
+
+          if (person.state == 'attending') {
+            cardDiv.addClass("ep-guest-card-selected");
+          }
+          return { htmlContainer: cardDiv, model: person };
         }).forEach(function(p) {
-          PeopleWidget.config.container.append(p);
+          PeopleWidget.config.container.append(p.htmlContainer);
+          PeopleWidget.data.people.push(p.model);
         });
 
         PeopleWidget.showSubList(PeopleWidget.config.containerAttending, function(person) { return person.state == 'attending' }, response);
@@ -269,6 +275,28 @@
       }).forEach(function(item) {
         container.append(item);
       });
+    },
+
+    toggleGuestInvitation: function(name) {
+      var person = this.data.people.filter(function(person) {
+        return person.name == name;
+      });
+
+      if (person[0].invited) {
+        person[0].invited = false;
+      } else {
+        person[0].invited = true;
+      }
+
+      return person[0].invited;
+    },
+
+    saveInvitations: function() {
+      return this.data.people.filter(function(person) {
+        return person.invited;
+      }).map(function(person) {
+        return person.name;
+      }).join();
     }
   }
 
