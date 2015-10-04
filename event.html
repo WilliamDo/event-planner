@@ -71,7 +71,7 @@
       <div role="tabpanel" class="tab-pane" id="tabPeople">
         <div class="row">
           <div class="col-sm-8">
-            <button type="button" class="btn btn-default">Save</button>
+            <button type="button" class="btn btn-default" onclick="PeopleWidget.saveInvitations()">Save</button>
             <div id="peopleContainer"></div>
           </div>
           <div class="col-sm-4">
@@ -187,7 +187,7 @@
 
     loadInvitations: function() {
       $.ajax({
-        url: "http://localhost:3000/invitations",
+        url: "http://localhost:3000/people",
         dataType: "json"
       }).done(function(response) {
         InvitationsWidget.config.container.empty();
@@ -243,16 +243,22 @@
         dataType: "json"
       }).done(function(response) {
         PeopleWidget.config.container.empty();
+        PeopleWidget.data.people = [];
         response.map(function(person) {
           var cardDiv = $("<div>", { class: "ep-guest-card" });
           $("<img>", { class: "ep-post-thumbnail", src: person.url }).appendTo(cardDiv);
           cardDiv.append(person.name);
           cardDiv.click(function() {
-            PeopleWidget.toggleGuestInvitation(person.name);
+            if (PeopleWidget.toggleGuestInvitation(person.name)) {
+              cardDiv.addClass("ep-guest-card-selected");
+            } else {
+              cardDiv.removeClass("ep-guest-card-selected");
+            };
           });
 
-          if (person.state == 'attending') {
+          if (person.state != "none") {
             cardDiv.addClass("ep-guest-card-selected");
+            person.invited = true; // Dynamically add this attribute
           }
           return { htmlContainer: cardDiv, model: person };
         }).forEach(function(p) {
@@ -292,11 +298,22 @@
     },
 
     saveInvitations: function() {
-      return this.data.people.filter(function(person) {
+      var invitations = this.data.people.filter(function(person) {
         return person.invited;
       }).map(function(person) {
         return person.name;
       }).join();
+
+      $.ajax({
+        url: "http://localhost:3000/people",
+        dataType: "json",
+        type: "POST",
+        data: { invitations: invitations }
+      }).done(function(response) {
+        // Refresh
+        PeopleWidget.loadPeople();
+      });
+
     }
   }
 
