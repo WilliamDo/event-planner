@@ -22,7 +22,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>Save Cocoon</h1>
+    <h1><span id="eventTitle"></span></h1>
 
     <ul class="nav nav-tabs" role="tablist">
       <li role="presentation" class="active"><a href="#tabSummary" aria-controls="tabSummary" role="tab" data-toggle="tab">Event</a></li>
@@ -134,7 +134,7 @@
     */
     loadPosts: function() {
       $.ajax({
-        url: "http://localhost:3000/posts",
+        url: "http://localhost:3000/event/174/posts",
         dataType: "json"
       }).done(function(response) {
         var posts = response.map(function(post) {
@@ -164,10 +164,10 @@
     newPost: function() {
       var message = this.config.postContentInput.val();
       $.ajax({
-        url: "http://localhost:3000/posts",
+        url: "http://localhost:3000/event/174/posts",
         dataType: "json",
         type: "POST",
-        data: { name: "Lightning", url: "FFXIII_Icon2_48x48.jpg", message: message }
+        data: { name: "Lightning", message: message }
       }).done(function(response) {
         // Refresh
         PostsWidget.loadPosts();
@@ -187,7 +187,7 @@
 
     loadInvitations: function() {
       $.ajax({
-        url: "http://localhost:3000/people",
+        url: "http://localhost:3000/event/123/people",
         dataType: "json"
       }).done(function(response) {
         InvitationsWidget.config.container.empty();
@@ -202,7 +202,8 @@
 
   var DateTimeWidget = {
     config: {
-      container: $("#dateTimeContainer")
+      container: $("#dateTimeContainer"),
+      titleContainer: $("#eventTitle")
     },
 
     init: function() {
@@ -211,12 +212,13 @@
 
     loadDateTime: function() {
       $.ajax({
-        url: "http://localhost:3000/event/123/time",
+        url: "http://localhost:3000/event/174",
         dataType: "json"
-      }).done(function(response) {
+      }).done(function(event) {
         DateTimeWidget.config.container.empty();
-        var date = new Date(response.time);
+        var date = new Date(event.start * 1000);
         DateTimeWidget.config.container.text(date.toString());
+        DateTimeWidget.config.titleContainer.text(event.title);
       });
     }
   }
@@ -239,7 +241,7 @@
 
     loadPeople: function() {
       $.ajax({
-        url: "http://localhost:3000/people",
+        url: "http://localhost:3000/event/174/people",
         dataType: "json"
       }).done(function(response) {
         PeopleWidget.config.container.empty();
@@ -256,7 +258,7 @@
             };
           });
 
-          if (person.state != "none") {
+          if (person.invitation) {
             cardDiv.addClass("ep-guest-card-selected");
             person.invited = true; // Dynamically add this attribute
           }
@@ -266,9 +268,9 @@
           PeopleWidget.data.people.push(p.model);
         });
 
-        PeopleWidget.showSubList(PeopleWidget.config.containerAttending, function(person) { return person.state == 'attending' }, response);
-        PeopleWidget.showSubList(PeopleWidget.config.containerMaybe, function(person) { return person.state == 'maybe' }, response);
-        PeopleWidget.showSubList(PeopleWidget.config.containerDeclined, function(person) { return person.state == 'declined' }, response);
+        PeopleWidget.showSubList(PeopleWidget.config.containerAttending, function(person) { return person.invitation && person.invitation.rsvp == 'attending' }, response);
+        PeopleWidget.showSubList(PeopleWidget.config.containerMaybe, function(person) { return person.invitation && person.invitation.rsvp == 'maybe' }, response);
+        PeopleWidget.showSubList(PeopleWidget.config.containerDeclined, function(person) { return person.invitation && person.invitation.rsvp == 'declined' }, response);
       });
     },
 
@@ -305,7 +307,7 @@
       }).join();
 
       $.ajax({
-        url: "http://localhost:3000/people",
+        url: "http://localhost:3000/event/174/people",
         dataType: "json",
         type: "POST",
         data: { invitations: invitations }
