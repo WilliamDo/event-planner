@@ -37,10 +37,19 @@ app.use(function(req, res, next) {
   next();
 });
 
+app.post('/event', function(req, res) {
+  var params = {organiser: req.params.name, title: req.body.title, start: req.body.start, end: req.body.end};
+  var createQuery = "match (organiser:Person {name: {name}}) create (organiser)-[:ORGANISE]->(:Event {title: {title}, start: {start}, end: {end}})";
+
+  cypher(createQuery, params, function(err, response) {
+    res.json(response);
+  });
+
+});
+
 app.get('/event/:eventId', function(req, res) {
   var query = "MATCH (e:Event) WHERE ID(e) = {eventId} RETURN e";
   var params = { eventId: parseInt(req.params.eventId) };
-  console.log(params);
 
   cypher(query, params, function(err, response) {
     if (response.results[0].data.length == 1) {
@@ -77,7 +86,6 @@ app.post('/event/:eventId/posts', function(req, res) {
 app.get('/event/:eventId/people', function(req, res) {
   var query = "match (me:Person {name: 'Lightning'})-[:FRIEND]-(friend:Person) optional match (friend)-[invitation:INVITE]-(event:Event) where id(event) = {eventId} return { name: friend.name, invitation: invitation, url: friend.image }";
   var params = { eventId: parseInt(req.params.eventId) };
-  console.log(params);
 
   cypher(query, params, function(err, response) {
     var invitations = response.results[0].data.map(function(item) {
@@ -95,10 +103,7 @@ app.post('/event/:eventId/people', function(req, res) {
   var eventId = parseInt(req.params.eventId);
   var statements = [{statement: deleteQuery, parameters: {eventId: eventId}}, {statement: createQuery, parameters: {eventId: eventId, invitations: invitations}}];
 
-  console.log(statements);
-
   cypherMultiple(statements, function(err, response) {
-    console.log(err);
     res.json(response);
   });
 
