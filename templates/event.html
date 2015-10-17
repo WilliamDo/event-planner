@@ -8,10 +8,10 @@
   <title>Event Planner</title>
 
   <!-- Bootstrap -->
-  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="/static/css/bootstrap.min.css" rel="stylesheet">
 
   <!-- App specific -->
-  <link href="main.css" rel="stylesheet">
+  <link href="/static/main.css" rel="stylesheet">
 
   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -107,7 +107,7 @@
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
   <!-- Include all compiled plugins (below), or include individual files as needed -->
-  <script src="js/bootstrap.min.js"></script>
+  <script src="/static/js/bootstrap.min.js"></script>
 
   <script>
 
@@ -134,12 +134,12 @@
     */
     loadPosts: function() {
       $.ajax({
-        url: "http://localhost:3000/event/174/posts",
+        url: `http://localhost:3000/event/${EventModel.eventId}/posts`,
         dataType: "json"
       }).done(function(response) {
         var posts = response.map(function(post) {
           var headerDiv = $("<div>", { class: "ep-post-header" });
-          $("<img>", { class: "ep-post-thumbnail", src: post.url }).appendTo(headerDiv);
+          $("<img>", { class: "ep-post-thumbnail", src: "/static/" + post.url }).appendTo(headerDiv);
           var nameDiv = $("<div>", { class: "ep-post-name" });
           nameDiv.append(post.name);
           headerDiv.append(nameDiv);
@@ -164,7 +164,7 @@
     newPost: function() {
       var message = this.config.postContentInput.val();
       $.ajax({
-        url: "http://localhost:3000/event/174/posts",
+        url: `http://localhost:3000/event/${EventModel.eventId}/posts`,
         dataType: "json",
         type: "POST",
         data: { name: "Lightning", message: message }
@@ -192,7 +192,7 @@
       }).done(function(response) {
         InvitationsWidget.config.container.empty();
         var posts = response.map(function(invitation) {
-          return $("<img>", { class: "ep-post-thumbnail", src: invitation.url });
+          return $("<img>", { class: "ep-post-thumbnail", src: "/static/" + invitation.url });
         }).forEach(function(img) {
           InvitationsWidget.config.container.append(img);
         });
@@ -212,7 +212,7 @@
 
     loadDateTime: function() {
       $.ajax({
-        url: "http://localhost:3000/event/174",
+        url: `http://localhost:3000/event/${EventModel.eventId}`,
         dataType: "json"
       }).done(function(event) {
         DateTimeWidget.config.container.empty();
@@ -241,14 +241,14 @@
 
     loadPeople: function() {
       $.ajax({
-        url: "http://localhost:3000/event/174/people",
+        url: `http://localhost:3000/event/${EventModel.eventId}/people`,
         dataType: "json"
       }).done(function(response) {
         PeopleWidget.config.container.empty();
         PeopleWidget.data.people = [];
         response.map(function(person) {
           var cardDiv = $("<div>", { class: "ep-guest-card" });
-          $("<img>", { class: "ep-post-thumbnail", src: person.url }).appendTo(cardDiv);
+          $("<img>", { class: "ep-post-thumbnail", src: "/static/" + person.url }).appendTo(cardDiv);
           cardDiv.append(person.name);
           cardDiv.click(function() {
             if (PeopleWidget.toggleGuestInvitation(person.name)) {
@@ -279,7 +279,7 @@
       data.filter(function(item) {
         return predicate(item);
       }).map(function(item) {
-        return $("<img>", { class: "ep-post-thumbnail", src: item.url });
+        return $("<img>", { class: "ep-post-thumbnail", src: "/static/" + item.url });
       }).forEach(function(item) {
         container.append(item);
       });
@@ -307,7 +307,7 @@
       }).join();
 
       $.ajax({
-        url: "http://localhost:3000/event/174/people",
+        url: `http://localhost:3000/event/${EventModel.eventId}/people`,
         dataType: "json",
         type: "POST",
         data: { invitations: invitations }
@@ -318,6 +318,9 @@
 
     }
   }
+
+  // Set by the template on the server
+  var EventModel = { eventId: {{ event_id }} };
 
   $(document).ready(function() {
     InvitationsWidget.init();
