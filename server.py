@@ -11,5 +11,9 @@ def hello():
 def event(event_id):
     return render_template('event.html', event_id=event_id)
 
+@app.route("/event/create")
+def event_new():
+    return render_template('create.html')
+
 if __name__ == "__main__":
     app.run(debug=True)
