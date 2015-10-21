@@ -322,6 +322,10 @@
   // Set by the template on the server
   var EventModel = { eventId: {{ event_id }} };
 
+  $.ajaxPrefilter(function(options) {
+    options.headers = { 'x-ep-user': sessionStorage.getItem("user") };
+  });
+
   $(document).ready(function() {
     InvitationsWidget.init();
     PostsWidget.init();
@@ -329,6 +333,9 @@
     PeopleWidget.init();
   });
 
+  function setUser(user) {
+    sessionStorage.setItem("user", user);
+  }
 
   var map;
   function initMap() {
