@@ -88,6 +88,16 @@ app.post('/event/:eventId/posts', function(req, res) {
 
 });
 
+app.post('/event/:eventId/rsvp', function(req, res) {
+  var params = {eventId: parseInt(req.params.eventId), name: req.headers['x-ep-user'], rsvp: req.body.rsvp};
+  var createQuery = "match (p:Person {name: {name}})-[invitation:INVITE]-(event:Event) where id(event) = {eventId} set invitation.rsvp = {rsvp}";
+
+  cypher(createQuery, params, function(err, response) {
+    res.json(response);
+  });
+
+});
+
 app.get('/event/:eventId/people', function(req, res) {
   var query = "match (me:Person {name: 'Lightning'})-[:FRIEND]-(friend:Person) optional match (friend)-[invitation:INVITE]-(event:Event) where id(event) = {eventId} return { name: friend.name, invitation: invitation, url: friend.image }";
   var params = { eventId: parseInt(req.params.eventId) };
