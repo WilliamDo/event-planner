@@ -34,7 +34,13 @@ function cypherMultiple(statements, callback) {
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "x-ep-user");
+  console.log(req.headers['x-ep-user']);
   next();
+});
+
+app.post('/login', function(req, res) {
+  res.json({ error: "NOT IMPLEMENTED" });
 });
 
 app.post('/event', function(req, res) {
@@ -73,8 +79,7 @@ app.get('/event/:eventId/posts', function(req, res) {
 });
 
 app.post('/event/:eventId/posts', function(req, res) {
-  req.body.timestamp = new Date().getTime();
-  var params = {eventId: parseInt(req.params.eventId), name: req.body.name, content: req.body.message};
+  var params = {eventId: parseInt(req.params.eventId), name: req.headers['x-ep-user'], content: req.body.message};
   var createQuery = "match (p:Person {name: {name}}), (event:Event) where id(event) = {eventId} create (comment:Comment {content:{content}, timestamp: timestamp()}) create (p)-[:POST]->(comment) create (comment)-[:ON]->(event)";
 
   cypher(createQuery, params, function(err, response) {
