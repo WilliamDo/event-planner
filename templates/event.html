@@ -49,6 +49,16 @@
           </div>
           <div class="col-sm-4">
             <div class="ep-summary-container">
+              <div class="ep-summary-header">RSVP</div>
+              <div id="rsvpContainer">
+                <div id="rsvpMessage"></div>
+                <button class="btn btn-default" type="button" onclick="RsvpWidget.rsvpAttending()">Attending</button>
+                <button class="btn btn-default" type="button" onclick="RsvpWidget.rsvpMaybe()">Maybe</button>
+                <button class="btn btn-default" type="button" onclick="RsvpWidget.rsvpDecline()">Decline</button>
+              </div>
+            </div>
+
+            <div class="ep-summary-container">
               <div class="ep-summary-header">Guests</div>
               <div id="invitationsContainer"></div>
             </div>
@@ -176,6 +186,33 @@
 
   };
 
+  var RsvpWidget = {
+
+    rsvp: function(reply) {
+      $.ajax({
+        url: `http://localhost:3000/event/${EventModel.eventId}/rsvp`,
+        dataType: "json",
+        type: "POST",
+        data: { rsvp: reply }
+      }).done(function(response) {
+
+      });
+    },
+
+    rsvpAttending() {
+      this.rsvp("attending");
+    },
+
+    rsvpMaybe() {
+      this.rsvp("maybe");
+    },
+
+    rsvpDecline() {
+      this.rsvp("declined");
+    }
+
+  };
+
   var InvitationsWidget = {
     config: {
       container: $("#invitationsContainer")
@@ -187,11 +224,13 @@
 
     loadInvitations: function() {
       $.ajax({
-        url: "http://localhost:3000/event/123/people",
+        url: `http://localhost:3000/event/${EventModel.eventId}/people`,
         dataType: "json"
       }).done(function(response) {
         InvitationsWidget.config.container.empty();
-        var posts = response.map(function(invitation) {
+        response.filter(function(guest) {
+          return guest.invitation;
+        }).map(function(invitation) {
           return $("<img>", { class: "ep-post-thumbnail", src: "/static/" + invitation.url });
         }).forEach(function(img) {
           InvitationsWidget.config.container.append(img);
