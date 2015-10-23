@@ -99,7 +99,7 @@ app.post('/event/:eventId/rsvp', function(req, res) {
 });
 
 app.get('/event/:eventId/people', function(req, res) {
-  var query = "match (me:Person {name: 'Lightning'})-[:FRIEND]-(friend:Person) optional match (friend)-[invitation:INVITE]-(event:Event) where id(event) = {eventId} return { name: friend.name, invitation: invitation, url: friend.image }";
+  var query = "match (friend:Person)-[invitation:INVITE]-(event:Event) where id(event) = {eventId} return { name: friend.name, invitation: invitation, url: friend.image }";
   var params = { eventId: parseInt(req.params.eventId) };
 
   cypher(query, params, function(err, response) {
@@ -122,6 +122,18 @@ app.post('/event/:eventId/people', function(req, res) {
     res.json(response);
   });
 
+});
+
+app.get('/friends', function(req, res) {
+  var query = "match (me:Person {name: {name}})-[:FRIEND]-(friend:Person) return { name: friend.name, url: friend.image }";
+  var params = { name: req.headers['x-ep-user'] };
+
+  cypher(query, params, function(err, response) {
+    var friends = response.results[0].data.map(function(item) {
+      return item.row[0];
+    });
+    res.json(friends);
+  });
 });
 
 var server = app.listen(3000, function() {
