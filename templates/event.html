@@ -279,38 +279,55 @@
     },
 
     loadPeople: function() {
-      $.ajax({
+      var eventInvitationsPromise = $.ajax({
         url: `http://localhost:3000/event/${EventModel.eventId}/people`,
         dataType: "json"
-      }).done(function(response) {
-        PeopleWidget.config.container.empty();
-        PeopleWidget.data.people = [];
-        response.map(function(person) {
-          var cardDiv = $("<div>", { class: "ep-guest-card" });
-          $("<img>", { class: "ep-post-thumbnail", src: "/static/" + person.url }).appendTo(cardDiv);
-          cardDiv.append(person.name);
-          cardDiv.click(function() {
-            if (PeopleWidget.toggleGuestInvitation(person.name)) {
+      });
+
+      var friendsPromise = $.ajax({
+        url: `http://localhost:3000/friends`,
+        dataType: "json"
+      });
+
+      $.when(eventInvitationsPromise, friendsPromise).then(function(response, friendsResponse) {
+          PeopleWidget.config.container.empty();
+          PeopleWidget.data.people = [];
+          friendsResponse[0].map(function(person) {
+            var cardDiv = $("<div>", { class: "ep-guest-card" });
+            $("<img>", { class: "ep-post-thumbnail", src: "/static/" + person.url }).appendTo(cardDiv);
+            cardDiv.append(person.name);
+            cardDiv.click(function() {
+              if (PeopleWidget.toggleGuestInvitation(person.name)) {
+                cardDiv.addClass("ep-guest-card-selected");
+              } else {
+                cardDiv.removeClass("ep-guest-card-selected");
+              };
+            });
+
+            var invitationIndex = response[0].findIndex(function(invitation) {
+              return invitation.name == person.name;
+            });
+
+            if (invitationIndex >= 0) {
               cardDiv.addClass("ep-guest-card-selected");
-            } else {
-              cardDiv.removeClass("ep-guest-card-selected");
-            };
+              person.invited = true; // Dynamically add this attribute
+            }
+            return { htmlContainer: cardDiv, model: person };
+          }).forEach(function(p) {
+            PeopleWidget.config.container.append(p.htmlContainer);
+            PeopleWidget.data.people.push(p.model);
           });
 
-          if (person.invitation) {
-            cardDiv.addClass("ep-guest-card-selected");
-            person.invited = true; // Dynamically add this attribute
-          }
-          return { htmlContainer: cardDiv, model: person };
-        }).forEach(function(p) {
-          PeopleWidget.config.container.append(p.htmlContainer);
-          PeopleWidget.data.people.push(p.model);
-        });
+          PeopleWidget.showSubList(PeopleWidget.config.containerAttending, function(person) { return person.invitation && person.invitation.rsvp == 'attending' }, response);
+          PeopleWidget.showSubList(PeopleWidget.config.containerMaybe, function(person) { return person.invitation && person.invitation.rsvp == 'maybe' }, response);
+          PeopleWidget.showSubList(PeopleWidget.config.containerDeclined, function(person) { return person.invitation && person.invitation.rsvp == 'declined' }, response);
+        }
+      );
 
-        PeopleWidget.showSubList(PeopleWidget.config.containerAttending, function(person) { return person.invitation && person.invitation.rsvp == 'attending' }, response);
-        PeopleWidget.showSubList(PeopleWidget.config.containerMaybe, function(person) { return person.invitation && person.invitation.rsvp == 'maybe' }, response);
-        PeopleWidget.showSubList(PeopleWidget.config.containerDeclined, function(person) { return person.invitation && person.invitation.rsvp == 'declined' }, response);
-      });
+      /*
+
+      */
+
     },
 
     showSubList: function(container, predicate, data) {
