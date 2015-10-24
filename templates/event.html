@@ -290,6 +290,8 @@
       });
 
       $.when(eventInvitationsPromise, friendsPromise).then(function(response, friendsResponse) {
+
+          // This should only be run if the user is also the organiser of the event
           PeopleWidget.config.container.empty();
           PeopleWidget.data.people = [];
           friendsResponse[0].map(function(person) {
@@ -318,23 +320,18 @@
             PeopleWidget.data.people.push(p.model);
           });
 
-          PeopleWidget.showSubList(PeopleWidget.config.containerAttending, function(person) { return person.invitation && person.invitation.rsvp == 'attending' }, response);
-          PeopleWidget.showSubList(PeopleWidget.config.containerMaybe, function(person) { return person.invitation && person.invitation.rsvp == 'maybe' }, response);
-          PeopleWidget.showSubList(PeopleWidget.config.containerDeclined, function(person) { return person.invitation && person.invitation.rsvp == 'declined' }, response);
+          // Always show this
+          PeopleWidget.showSubList(PeopleWidget.config.containerAttending, function(person) { return person.invitation && person.invitation.rsvp == 'attending' }, response[0]);
+          PeopleWidget.showSubList(PeopleWidget.config.containerMaybe, function(person) { return person.invitation && person.invitation.rsvp == 'maybe' }, response[0]);
+          PeopleWidget.showSubList(PeopleWidget.config.containerDeclined, function(person) { return person.invitation && person.invitation.rsvp == 'declined' }, response[0]);
         }
       );
-
-      /*
-
-      */
 
     },
 
     showSubList: function(container, predicate, data) {
       container.empty();
-      data.filter(function(item) {
-        return predicate(item);
-      }).map(function(item) {
+      data.filter(predicate).map(function(item) {
         return $("<img>", { class: "ep-post-thumbnail", src: "/static/" + item.url });
       }).forEach(function(item) {
         container.append(item);
