@@ -43,6 +43,10 @@
 
   <script>
 
+  $.ajaxPrefilter(function(options) {
+    options.headers = { 'x-ep-user': sessionStorage.getItem("user") };
+  });
+
   var NewEventWidget = {
     config: {
       titleInput: $("#title"),
@@ -54,7 +58,7 @@
         url: `http://localhost:3000/event`,
         dataType: "json",
         type: "POST",
-        data: { name: "Lightning", title: $("#title").val(), start: (new Date()).getTime(), end: (new Date()).getTime() }
+        data: { title: $("#title").val(), start: (new Date()).getTime(), end: (new Date()).getTime() }
       }).done(function(response) {
         console.log(response);
       });
