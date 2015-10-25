@@ -44,7 +44,7 @@ app.post('/login', function(req, res) {
 });
 
 app.post('/event', function(req, res) {
-  var params = {name: req.body.name, title: req.body.title, start: req.body.start, end: req.body.end};
+  var params = {name: req.headers['x-ep-user'], title: req.body.title, start: req.body.start, end: req.body.end};
   var createQuery = "match (organiser:Person {name: {name}}) create (organiser)-[:ORGANISE]->(:Event {title: {title}, start: {start}, end: {end}})";
 
   cypher(createQuery, params, function(err, response) {
