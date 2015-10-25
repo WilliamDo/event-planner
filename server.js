@@ -53,7 +53,19 @@ app.post('/event', function(req, res) {
 
 });
 
-app.get('/event/:eventId', function(req, res) {
+app.get('/event/all', function(req, res) {
+  var query = "match (e:Event)-[:ORGANISE]-(:Person {name: {name}}) return {title: e.title, id: id(e)} union match (e:Event)-[:INVITE]-(:Person {name: {name}}) return {title: e.title, id: id(e)}";
+  var params = { name: req.headers['x-ep-user'] };
+
+  cypher(query, params, function(err, response) {
+    var events = response.results[0].data.map(function(item) {
+      return item.row[0];
+    });
+    res.json(events);
+  });
+});
+
+app.get('/event/:eventId(\\d+)', function(req, res) {
   var query = "MATCH (e:Event) WHERE ID(e) = {eventId} RETURN e";
   var params = { eventId: parseInt(req.params.eventId) };
 
@@ -112,6 +124,7 @@ app.get('/event/:eventId/people', function(req, res) {
 
 app.post('/event/:eventId/people', function(req, res) {
   var invitations = req.body.invitations.split(",");
+  // FIXME Delete invitations also deletes the RSVPs but we need to keep them!
   var deleteQuery = "match (:Person)-[invitation:INVITE]-(event:Event) where id(event) = {eventId} delete invitation";
   var createQuery = "match (p:Person), (event:Event) where id(event) = {eventId} and p.name in {invitations} create (event)-[:INVITE]->(p)";
 
