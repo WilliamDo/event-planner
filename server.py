@@ -19,5 +19,9 @@ def event_new():
 def login():
     return render_template('login.html')
 
+@app.route("/organiser")
+def organiser():
+    return render_template('organiser.html')
+
 if __name__ == "__main__":
     app.run(debug=True)

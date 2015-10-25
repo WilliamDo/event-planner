@@ -22,18 +22,11 @@
 </head>
 <body>
   <div class="container">
-    <h1>Login</h1>
-
-    <form>
-      <div class="form-group">
-        <input type="text" class="form-control" id="username" placeholder="Username">
-      </div>
-      <div class="form-group">
-        <input type="password" class="form-control" id="password" placeholder="Password">
-      </div>
-      <button type="button" onclick="LoginWidget.login()" class="btn btn-default">Login</button>
-    </form>
-
+    <h1>Organiser</h1>
+    <h2>My Events</h2>
+    <ul id="myEvents"></ul>
+    <h2>Other Events</h2>
+    <ul id="otherEvents"></ul>
   </div>
 
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
@@ -43,25 +36,38 @@
 
   <script>
 
-  var LoginWidget = {
+  $.ajaxPrefilter(function(options) {
+    options.headers = { 'x-ep-user': sessionStorage.getItem("user") };
+  });
+
+  var EventsWidget = {
     config: {
-      usernameInput: $("#username"),
-      passwordInput: $("#password")
+      myEventsContainer: $("#myEvents"),
+      otherEventsContainer: $("#otherEvents")
     },
 
-    login: function() {
+    load: function() {
       $.ajax({
-        url: `http://localhost:3000/login`,
+        url: `http://localhost:3000/event/all`,
         dataType: "json",
-        type: "POST",
-        data: { username: $("#username").val(), password: $("#password").val() }
       }).done(function(response) {
         console.log(response);
-        sessionStorage.setItem("user", $("#username").val());
-        window.location.assign("http://localhost:5000/organiser");
+        EventsWidget.config.myEventsContainer.empty();
+        response.forEach(function(event) {
+          var listItem = $("<li>");
+          var link = $("<a>", { href: "http://localhost:5000/event/" + event.id })
+          link.append(event.title);
+          listItem.append(link);
+          EventsWidget.config.myEventsContainer.append(listItem);
+        });
+
       });
     }
   };
+
+  $(document).ready(function () {
+    EventsWidget.load();
+  });
   </script>
 
 
