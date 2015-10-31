@@ -255,7 +255,7 @@
         dataType: "json"
       }).done(function(event) {
         DateTimeWidget.config.container.empty();
-        var date = new Date(event.start * 1000);
+        var date = new Date(event.start);
         DateTimeWidget.config.container.text(date.toString());
         DateTimeWidget.config.titleContainer.text(event.title);
       });
