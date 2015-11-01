@@ -54,7 +54,7 @@ app.post('/event', function(req, res) {
 });
 
 app.get('/event/all', function(req, res) {
-  var query = "match (e:Event)-[:ORGANISE]-(:Person {name: {name}}) return {title: e.title, id: id(e)} union match (e:Event)-[:INVITE]-(:Person {name: {name}}) return {title: e.title, id: id(e)}";
+  var query = "match (e:Event)-[:ORGANISE]-(:Person {name: {name}}) return {title: e.title, id: id(e), start: e.start} union match (e:Event)-[:INVITE]-(:Person {name: {name}}) return {title: e.title, id: id(e), start: e.start}";
   var params = { name: req.headers['x-ep-user'] };
 
   cypher(query, params, function(err, response) {
