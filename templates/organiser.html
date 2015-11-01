@@ -26,7 +26,7 @@
   var EventItem = React.createClass({
     render: function() {
       return (
-        <div><a href={"http://localhost:5000/event/" + this.props.key}>{this.props.title}</a> {new Date(this.props.start).toString()}</div>
+        <div><a href={"http://localhost:5000/event/" + this.props.eventId}>{this.props.title}</a> {new Date(this.props.start).toString()}</div>
       );
     }
   });
@@ -48,7 +48,7 @@
 
     render: function() {
       var items = this.state.data.map(function(event) {
-        return (<EventItem key={event.id} title={event.title} start={event.start} />);
+        return (<EventItem key={event.id} eventId={event.id} title={event.title} start={event.start} />);
       });
       return (
         <div>{items}</div>
