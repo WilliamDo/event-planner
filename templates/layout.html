@@ -67,6 +67,7 @@
                 <li><a href="#">Separated link</a></li>
               </ul>
             </li>
+            <li><a href="#"><span id="headerUser"></span></a></li>
           </ul>
         </div><!-- /.navbar-collapse -->
       </div><!-- /.container-fluid -->
@@ -79,5 +80,11 @@
       &copy; Copyright 2010 by <a href="http://domain.invalid/">you</a>.
       {% endblock %}
     </div>
+
+    <script>
+      $(document).ready(function() {
+        $("#headerUser").text(sessionStorage.getItem("user"));
+      });
+    </script>
   </body>
 </html>
