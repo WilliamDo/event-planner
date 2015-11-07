@@ -20,7 +20,7 @@
   <script type="text/babel">
 
   $.ajaxPrefilter(function(options) {
-    options.headers = { 'x-ep-user': sessionStorage.getItem("user") };
+    options.headers = { 'x-ep-user': sessionStorage.getItem("user"), 'Authorization': sessionStorage.getItem("token") };
   });
 
   var EventItem = React.createClass({
