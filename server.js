@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
 var request = require('request');
+var jwt = require('jsonwebtoken');
 
 var txUrl = "http://localhost:7474/db/data/transaction/commit";
 
@@ -34,13 +35,26 @@ function cypherMultiple(statements, callback) {
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "x-ep-user");
-  console.log(req.headers['x-ep-user']);
+  res.header("Access-Control-Allow-Headers", "x-ep-user, Authorization");
+  console.log("x-ep-user: " + req.headers['x-ep-user']);
+  console.log("Authorization: " + req.headers['authorization']);
+
+  var token = req.headers['authorization'];
+  if (token) {
+    var decoded = jwt.verify(token, 'mysecret');
+    if (decoded) {
+      console.log(decoded);
+    }
+  }
+
   next();
 });
 
 app.post('/login', function(req, res) {
-  res.json({ error: "NOT IMPLEMENTED" });
+  console.log("Login " + req.body.username);
+  var token = jwt.sign({ user: req.body.username }, 'mysecret');
+  console.log (token);
+  res.json(token);
 });
 
 app.post('/event', function(req, res) {
