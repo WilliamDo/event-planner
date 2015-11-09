@@ -36,6 +36,12 @@
       font-size: larger;
     }
 
+    #newPostEditor {
+      background-color: #ffffff;
+      border: 1px solid #E1E1E1;
+      padding: 6px;
+    }
+
   </style>
 {% endblock %}
 {% block content %}
@@ -57,7 +63,7 @@
           <div class="col-sm-8">
 
             <div>
-              <input id="newPostContent" class="form-control" type="text" placeholder="Type a message">
+              <div id="newPostEditor" contenteditable="true">Type a message here</div>
               <button onClick="PostsWidget.newPost()" class="btn btn-default" type="button">Post</button>
             </div>
 
@@ -139,7 +145,7 @@
 
     config: {
       container: $("#postsContainer"),
-      postContentInput: $("#newPostContent")
+      postContentInput: $("#newPostEditor")
     },
 
     init: function() {
@@ -186,7 +192,7 @@
     },
 
     newPost: function() {
-      var message = this.config.postContentInput.val();
+      var message = this.config.postContentInput.text();
       $.ajax({
         url: `http://localhost:3000/event/${EventModel.eventId}/posts`,
         dataType: "json",
@@ -194,6 +200,7 @@
         data: { name: "Lightning", message: message }
       }).done(function(response) {
         // Refresh
+        PostsWidget.config.postContentInput.text('');
         PostsWidget.loadPosts();
       });
     }
