@@ -160,56 +160,65 @@
 
   </div>
 
+  <script src="https://fb.me/react-0.14.1.js"></script>
+  <script src="https://fb.me/react-dom-0.14.1.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+
+  <script type="text/babel">
+    var PostItem = React.createClass({
+
+      formatPostTime: function() {
+        return (new Date().getTime() - this.props.timestamp) + " milliseconds ago";
+      },
+
+      render: function() {
+        return (
+          <div className="ep-post">
+            <div className="ep-post-header">
+              <img className="ep-post-thumbnail" src={ this.props.imageUrl } />
+              <div className="ep-post-name">{ this.props.name }</div>
+              <div className="ep-post-time">{ this.formatPostTime() }</div>
+            </div>
+            <div className="ep-post-content">{ this.props.content }</div>
+          </div>
+        );
+      }
+    });
+
+    var PostList = React.createClass({
+
+      getInitialState: function() {
+        return { data: [] };
+      },
+
+      componentDidMount: function() {
+        $.ajax({
+          url: `http://localhost:3000/event/${EventModel.eventId}/posts`,
+          dataType: "json"
+        }).done(function(data) {
+          this.setState({ data: data });
+        }.bind(this));
+      },
+
+      render: function() {
+        var items = this.state.data.map(function(post) {
+          return (<PostItem name={ post.name } timestamp={ post.timestamp } imageUrl={ "/static/" + post.url } content={ post.message } />);
+        });
+        return (
+          <div>{items}</div>
+        );
+      }
+    });
+
+    ReactDOM.render(<PostList />, document.getElementById('postsContainer'));
+
+  </script>
+
   <script>
 
   var PostsWidget = {
-
     config: {
-      container: $("#postsContainer"),
       postContentInput: $("#newPostEditor")
-    },
-
-    init: function() {
-      this.loadPosts();
-    },
-
-    /*
-    <div class="ep-post">
-      <div class="ep-post-header">
-        <img class="ep-post-thumbnail" src="FFXIII_Icon2_48x48.jpg">
-        <div class="ep-post-name">Claire Farron</div>
-        <div class="ep-post-time">5 mins ago</div>
-      </div>
-      <div class="ep-post-content">Serah Farron, I am coming to save you. I promise.</div>
-    </div>
-    */
-    loadPosts: function() {
-      $.ajax({
-        url: `http://localhost:3000/event/${EventModel.eventId}/posts`,
-        dataType: "json"
-      }).done(function(response) {
-        var posts = response.map(function(post) {
-          var headerDiv = $("<div>", { class: "ep-post-header" });
-          $("<img>", { class: "ep-post-thumbnail", src: "/static/" + post.url }).appendTo(headerDiv);
-          var nameDiv = $("<div>", { class: "ep-post-name" });
-          nameDiv.append(post.name);
-          headerDiv.append(nameDiv);
-
-          var timeDiv = $("<div>", { class: "ep-post-time" });
-          var timeDiff = new Date().getTime() - post.timestamp;
-          timeDiv.append(timeDiff + " milliseconds ago");
-          headerDiv.append(timeDiv);
-
-          var contentDiv = $("<div>", { class: "ep-post-content" });
-          contentDiv.append(post.message);
-
-          var postDiv = $("<div>", { class: "ep-post" });
-          postDiv.append(headerDiv, contentDiv);
-          return postDiv;
-        });
-        PostsWidget.config.container.empty();
-        PostsWidget.config.container.append(posts);
-      });
     },
 
     newPost: function() {
@@ -423,7 +432,6 @@
 
   $(document).ready(function() {
     InvitationsWidget.init();
-    PostsWidget.init();
     DateTimeWidget.init();
     PeopleWidget.init();
   });
