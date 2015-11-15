@@ -40,6 +40,24 @@
       background-color: #ffffff;
       border: 1px solid #E1E1E1;
       padding: 6px;
+      height: 100px;
+      overflow-y: auto;
+      margin-bottom: 6px;
+    }
+
+    #newPostEditorContainer {
+      padding: 12px;
+      background-color: #e6e6e6;
+      border: 1px solid #E1E1E1;
+      margin-bottom: 12px;
+    }
+
+    #newPostButton {
+      float: right;
+    }
+
+    #newPostTools {
+      overflow-y: auto;
     }
 
   </style>
@@ -62,9 +80,17 @@
         <div class="row">
           <div class="col-sm-8">
 
-            <div>
+            <div id="newPostEditorContainer">
               <div id="newPostEditor" contenteditable="true">Type a message here</div>
-              <button onClick="PostsWidget.newPost()" class="btn btn-default" type="button">Post</button>
+              <div id="newPostTools">
+                <div class="btn-group" role="group" aria-label="...">
+                  <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-align-left" aria-hidden="true"></button>
+                  <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-picture" aria-hidden="true"></span></button>
+                  <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span></button>
+                </div>
+                <button id="newPostButton" onClick="PostsWidget.newPost()" class="btn btn-primary" type="button">Post</button>
+              </div>
+
             </div>
 
             <!-- Container for posts -->
