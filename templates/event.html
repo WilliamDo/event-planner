@@ -28,6 +28,12 @@
     #tabNavBar a {
       padding: 12px;
       display: inline-block;
+      text-decoration: none;
+      color: #777
+    }
+
+    #tabNavBar a:hover {
+      background-color: #e1e1e1;
     }
 
     #eventTitle {
@@ -168,7 +174,16 @@
     var PostItem = React.createClass({
 
       formatPostTime: function() {
-        return (new Date().getTime() - this.props.timestamp) + " milliseconds ago";
+        var diffInMilliseconds = new Date().getTime() - this.props.timestamp;
+        var diffInSeconds = diffInMilliseconds / 1000;
+        if (diffInSeconds < 60) {
+          return Math.round(diffInMilliseconds / 1000) + " seconds ago";
+        } else if (diffInSeconds < 60 * 60) {
+          return Math.round(diffInSeconds / 60) + " minutes ago";
+        }
+
+        return new Date(this.props.timestamp).toString();
+
       },
 
       render: function() {
@@ -231,7 +246,7 @@
       }).done(function(response) {
         // Refresh
         PostsWidget.config.postContentInput.text('');
-        PostsWidget.loadPosts();
+        // TODO Notify the posts widget to reload?
       });
     }
 
