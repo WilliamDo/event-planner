@@ -1,11 +1,5 @@
 version: "3.9"  # optional since v1.27.0
 services:
-  api:
-    build: ./event-planner-server
-    ports:
-      - "3000:3000"
-    environment:
-      DATABASE_HOST: db
   db:
     image: neo4j:4.3.2
     ports:
@@ -13,3 +7,14 @@ services:
       - "7687:7687"
     environment: 
       NEO4J_AUTH: none
+  api:
+    build: ./event-planner-server
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_HOST: db
+  web:
+    build: ./event-planner-ui
+    ports:
+      - "5000:5000"
+
