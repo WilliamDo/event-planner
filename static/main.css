@@ -41,6 +41,7 @@ body {
 .ep-post-thumbnail {
   float: left;
   margin-right: 10px;
+  width: 64px;
 }
 
 .ep-post-name {
