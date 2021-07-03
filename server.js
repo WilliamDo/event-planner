@@ -4,7 +4,9 @@ var app = express();
 var request = require('request');
 var jwt = require('jsonwebtoken');
 
-var txUrl = "http://localhost:7474/db/data/transaction/commit";
+var dbHost = process.env.DATABASE_HOST || "localhost"
+
+var txUrl = `http://${dbHost}:7474/db/data/transaction/commit`
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
