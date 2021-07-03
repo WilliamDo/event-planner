@@ -59,7 +59,7 @@ app.post('/login', function(req, res) {
 
 app.post('/event', function(req, res) {
   var params = {name: req.headers['x-ep-user'], title: req.body.title, start: req.body.start, end: req.body.end};
-  var createQuery = "match (organiser:Person {name: {name}}) create (organiser)-[:ORGANISE]->(:Event {title: {title}, start: {start}, end: {end}})";
+  var createQuery = "match (organiser:Person {name: $name}) create (organiser)-[:ORGANISE]->(:Event {title: $title, start: $start, end: $end})";
 
   cypher(createQuery, params, function(err, response) {
     res.json(response);
@@ -116,7 +116,7 @@ app.post('/event/:eventId/posts', function(req, res) {
 
 app.post('/event/:eventId/rsvp', function(req, res) {
   var params = {eventId: parseInt(req.params.eventId), name: req.headers['x-ep-user'], rsvp: req.body.rsvp};
-  var createQuery = "match (p:Person {name: {name}})-[invitation:INVITE]-(event:Event) where id(event) = {eventId} set invitation.rsvp = {rsvp}";
+  var createQuery = "match (p:Person {name: $name})-[invitation:INVITE]-(event:Event) where id(event) = $eventId set invitation.rsvp = $rsvp";
 
   cypher(createQuery, params, function(err, response) {
     res.json(response);
