@@ -106,7 +106,7 @@ app.get('/event/:eventId/posts', function(req, res) {
 
 app.post('/event/:eventId/posts', function(req, res) {
   var params = {eventId: parseInt(req.params.eventId), name: req.headers['x-ep-user'], content: req.body.message};
-  var createQuery = "match (p:Person {name: {name}}), (event:Event) where id(event) = {eventId} create (comment:Comment {content:{content}, timestamp: timestamp()}) create (p)-[:POST]->(comment) create (comment)-[:ON]->(event)";
+  var createQuery = "match (p:Person {name: $name}), (event:Event) where id(event) = $eventId create (comment:Comment {content: $content, timestamp: timestamp()}) create (p)-[:POST]->(comment) create (comment)-[:ON]->(event)";
 
   cypher(createQuery, params, function(err, response) {
     res.json(response);
