@@ -1,0 +1,477 @@
+{% extends "layout.html" %}
+{% block title %}Organiser{% endblock %}
+{% block head %}
+  {{ super() }}
+  <style>
+    #eventImageContainer {
+      //background-image: url("/static/FFXIII_Wallpaper2_1920x1200_UK.jpg");
+      //background-size: cover;
+      background-image: linear-gradient(to bottom, #aeaeae, #e1e1e1);
+      background-position: center center;
+      height: 200px;
+      width: 100%;
+      display: flex;
+    }
+
+    #tabNavBar {
+      list-style: none;
+      overflow: auto;
+      border-bottom: 1px solid #E1E1E1;
+      padding-left: 0;
+    }
+
+    #tabNavBar li {
+      display: block;
+      float: left;
+    }
+
+    #tabNavBar a {
+      padding: 12px;
+      display: inline-block;
+      text-decoration: none;
+      color: #777
+    }
+
+    #tabNavBar a:hover {
+      background-color: #e1e1e1;
+    }
+
+    #eventTitle {
+      align-self: flex-end;
+      margin: 12px;
+      font-size: larger;
+    }
+
+    #newPostEditor {
+      background-color: #ffffff;
+      border: 1px solid #E1E1E1;
+      padding: 6px;
+      height: 100px;
+      overflow-y: auto;
+      margin-bottom: 6px;
+    }
+
+    #newPostEditorContainer {
+      padding: 12px;
+      background-color: #e6e6e6;
+      border: 1px solid #E1E1E1;
+      margin-bottom: 12px;
+    }
+
+    #newPostButton {
+      float: right;
+    }
+
+    #newPostTools {
+      overflow-y: auto;
+    }
+
+  </style>
+{% endblock %}
+{% block content %}
+  <div class="container">
+    <div id="eventImageContainer"><div id="eventTitle"></div></div>
+
+    <ul id="tabNavBar" role="tablist">
+      <li role="presentation" class="active"><a href="#tabSummary" aria-controls="tabSummary" role="tab" data-toggle="tab">Event</a></li>
+      <li role="presentation"><a href="#tabPeople" aria-controls="tabPeople" role="tab" data-toggle="tab">Guests</a></li>
+      <li role="presentation"><a href="#tabDate" aria-controls="tabDate" role="tab" data-toggle="tab">Time</a></li>
+      <li role="presentation"><a href="#tabLocation" aria-controls="tabLocation" role="tab" data-toggle="tab">Location</a></li>
+    </ul>
+
+    <div id="pageContent" class="tab-content">
+
+      <!-- Summary tab -->
+      <div role="tabpanel" class="tab-pane active" id="tabSummary">
+        <div class="row">
+          <div class="col-sm-8">
+
+            <div id="newPostEditorContainer">
+              <div id="newPostEditor" contenteditable="true">Type a message here</div>
+              <div id="newPostTools">
+                <div class="btn-group" role="group" aria-label="...">
+                  <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-align-left" aria-hidden="true"></button>
+                  <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-picture" aria-hidden="true"></span></button>
+                  <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span></button>
+                </div>
+                <button id="newPostButton" onClick="PostsWidget.newPost()" class="btn btn-primary" type="button">Post</button>
+              </div>
+
+            </div>
+
+            <!-- Container for posts -->
+            <div id="postsContainer"></div>
+
+          </div>
+          <div class="col-sm-4">
+            <div class="ep-summary-container">
+              <div class="ep-summary-header">RSVP</div>
+              <div id="rsvpContainer">
+                <div id="dateTimeContainer"></div>
+                <div id="rsvpMessage"></div>
+                <button class="btn btn-default" type="button" onclick="RsvpWidget.rsvpAttending()">Attending</button>
+                <button class="btn btn-default" type="button" onclick="RsvpWidget.rsvpMaybe()">Maybe</button>
+                <button class="btn btn-default" type="button" onclick="RsvpWidget.rsvpDecline()">Decline</button>
+              </div>
+            </div>
+
+            <div class="ep-summary-container">
+              <div class="ep-summary-header">Guests</div>
+              <div id="invitationsContainer"></div>
+            </div>
+
+            <div class="ep-summary-container">
+              <div class="ep-summary-header">Location</div>
+              <div id ="locationMap"></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- People tab -->
+      <div role="tabpanel" class="tab-pane" id="tabPeople">
+        <div class="row">
+          <div class="col-sm-8">
+            <button type="button" class="btn btn-default" onclick="PeopleWidget.saveInvitations()">Save</button>
+            <div id="peopleContainer"></div>
+          </div>
+          <div class="col-sm-4">
+            <div class="ep-summary-container">
+              <div class="ep-summary-header">Attending</div>
+              <div id="attendingContainer"></div>
+            </div>
+
+            <div class="ep-summary-container">
+              <div class="ep-summary-header">Maybe</div>
+              <div id="maybeContainer"></div>
+            </div>
+
+            <div class="ep-summary-container">
+              <div class="ep-summary-header">Declined</div>
+              <div id="declinedContainer"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Date tab -->
+      <div role="tabpanel" class="tab-pane" id="tabDate">Date</div>
+
+      <!-- Location tab -->
+      <div role="tabpanel" class="tab-pane" id="tabLocation">Location</div>
+
+
+    </div>
+
+  </div>
+
+  <script src="https://fb.me/react-0.14.1.js"></script>
+  <script src="https://fb.me/react-dom-0.14.1.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+
+  <script type="text/babel">
+    var PostItem = React.createClass({
+
+      formatPostTime: function() {
+        var diffInMilliseconds = new Date().getTime() - this.props.timestamp;
+        var diffInSeconds = diffInMilliseconds / 1000;
+        if (diffInSeconds < 60) {
+          return Math.round(diffInMilliseconds / 1000) + " seconds ago";
+        } else if (diffInSeconds < 60 * 60) {
+          return Math.round(diffInSeconds / 60) + " minutes ago";
+        }
+
+        return new Date(this.props.timestamp).toString();
+
+      },
+
+      render: function() {
+        return (
+          <div className="ep-post">
+            <div className="ep-post-header">
+              <img className="ep-post-thumbnail" src={ this.props.imageUrl } />
+              <div className="ep-post-name">{ this.props.name }</div>
+              <div className="ep-post-time">{ this.formatPostTime() }</div>
+            </div>
+            <div className="ep-post-content">{ this.props.content }</div>
+          </div>
+        );
+      }
+    });
+
+    var PostList = React.createClass({
+
+      getInitialState: function() {
+        return { data: [] };
+      },
+
+      componentDidMount: function() {
+        $.ajax({
+          url: `http://localhost:3000/event/${EventModel.eventId}/posts`,
+          dataType: "json"
+        }).done(function(data) {
+          this.setState({ data: data });
+        }.bind(this));
+      },
+
+      render: function() {
+        var items = this.state.data.map(function(post) {
+          return (<PostItem name={ post.name } timestamp={ post.timestamp } imageUrl={ "/static/" + post.url } content={ post.message } />);
+        });
+        return (
+          <div>{items}</div>
+        );
+      }
+    });
+
+    ReactDOM.render(<PostList />, document.getElementById('postsContainer'));
+
+  </script>
+
+  <script>
+
+  var PostsWidget = {
+    config: {
+      postContentInput: $("#newPostEditor")
+    },
+
+    newPost: function() {
+      var message = this.config.postContentInput.text();
+      $.ajax({
+        url: `http://localhost:3000/event/${EventModel.eventId}/posts`,
+        dataType: "json",
+        type: "POST",
+        data: { name: "Lightning", message: message }
+      }).done(function(response) {
+        // Refresh
+        PostsWidget.config.postContentInput.text('');
+        // TODO Notify the posts widget to reload?
+      });
+    }
+
+  };
+
+  var RsvpWidget = {
+
+    rsvp: function(reply) {
+      $.ajax({
+        url: `http://localhost:3000/event/${EventModel.eventId}/rsvp`,
+        dataType: "json",
+        type: "POST",
+        data: { rsvp: reply }
+      }).done(function(response) {
+
+      });
+    },
+
+    rsvpAttending() {
+      this.rsvp("attending");
+    },
+
+    rsvpMaybe() {
+      this.rsvp("maybe");
+    },
+
+    rsvpDecline() {
+      this.rsvp("declined");
+    }
+
+  };
+
+  var InvitationsWidget = {
+    config: {
+      container: $("#invitationsContainer")
+    },
+
+    init: function() {
+      this.loadInvitations();
+    },
+
+    loadInvitations: function() {
+      $.ajax({
+        url: `http://localhost:3000/event/${EventModel.eventId}/people`,
+        dataType: "json"
+      }).done(function(response) {
+        InvitationsWidget.config.container.empty();
+        response.filter(function(guest) {
+          return guest.invitation;
+        }).map(function(invitation) {
+          return $("<img>", { class: "ep-post-thumbnail", src: "/static/" + invitation.url });
+        }).forEach(function(img) {
+          InvitationsWidget.config.container.append(img);
+        });
+      });
+    }
+  }
+
+  var DateTimeWidget = {
+    config: {
+      container: $("#dateTimeContainer"),
+      titleContainer: $("#eventTitle")
+    },
+
+    init: function() {
+      this.loadDateTime();
+    },
+
+    loadDateTime: function() {
+      $.ajax({
+        url: `http://localhost:3000/event/${EventModel.eventId}`,
+        dataType: "json"
+      }).done(function(event) {
+        DateTimeWidget.config.container.empty();
+        var date = new Date(event.start);
+        DateTimeWidget.config.container.text(date.toString());
+        DateTimeWidget.config.titleContainer.text(event.title);
+      });
+    }
+  }
+
+  var PeopleWidget = {
+    config: {
+      container: $("#peopleContainer"),
+      containerAttending: $("#attendingContainer"),
+      containerMaybe: $("#maybeContainer"),
+      containerDeclined: $("#declinedContainer")
+    },
+
+    data: {
+      people: []
+    },
+
+    init: function() {
+      this.loadPeople();
+    },
+
+    loadPeople: function() {
+      var eventInvitationsPromise = $.ajax({
+        url: `http://localhost:3000/event/${EventModel.eventId}/people`,
+        dataType: "json"
+      });
+
+      var friendsPromise = $.ajax({
+        url: `http://localhost:3000/friends`,
+        dataType: "json"
+      });
+
+      $.when(eventInvitationsPromise, friendsPromise).then(function(response, friendsResponse) {
+
+          // This should only be run if the user is also the organiser of the event
+          PeopleWidget.config.container.empty();
+          PeopleWidget.data.people = [];
+          friendsResponse[0].map(function(person) {
+            var cardDiv = $("<div>", { class: "ep-guest-card" });
+            $("<img>", { class: "ep-post-thumbnail", src: "/static/" + person.url }).appendTo(cardDiv);
+            cardDiv.append(person.name);
+            cardDiv.click(function() {
+              if (PeopleWidget.toggleGuestInvitation(person.name)) {
+                cardDiv.addClass("ep-guest-card-selected");
+              } else {
+                cardDiv.removeClass("ep-guest-card-selected");
+              };
+            });
+
+            var invitationIndex = response[0].findIndex(function(invitation) {
+              return invitation.name == person.name;
+            });
+
+            if (invitationIndex >= 0) {
+              cardDiv.addClass("ep-guest-card-selected");
+              person.invited = true; // Dynamically add this attribute
+            }
+            return { htmlContainer: cardDiv, model: person };
+          }).forEach(function(p) {
+            PeopleWidget.config.container.append(p.htmlContainer);
+            PeopleWidget.data.people.push(p.model);
+          });
+
+          // Always show this
+          PeopleWidget.showSubList(PeopleWidget.config.containerAttending, function(person) { return person.invitation && person.invitation.rsvp == 'attending' }, response[0]);
+          PeopleWidget.showSubList(PeopleWidget.config.containerMaybe, function(person) { return person.invitation && person.invitation.rsvp == 'maybe' }, response[0]);
+          PeopleWidget.showSubList(PeopleWidget.config.containerDeclined, function(person) { return person.invitation && person.invitation.rsvp == 'declined' }, response[0]);
+        }
+      );
+
+    },
+
+    showSubList: function(container, predicate, data) {
+      container.empty();
+      data.filter(predicate).map(function(item) {
+        return $("<img>", { class: "ep-post-thumbnail", src: "/static/" + item.url });
+      }).forEach(function(item) {
+        container.append(item);
+      });
+    },
+
+    toggleGuestInvitation: function(name) {
+      var person = this.data.people.filter(function(person) {
+        return person.name == name;
+      });
+
+      if (person[0].invited) {
+        person[0].invited = false;
+      } else {
+        person[0].invited = true;
+      }
+
+      return person[0].invited;
+    },
+
+    saveInvitations: function() {
+      var invitations = this.data.people.filter(function(person) {
+        return person.invited;
+      }).map(function(person) {
+        return person.name;
+      }).join();
+
+      $.ajax({
+        url: `http://localhost:3000/event/${EventModel.eventId}/people`,
+        dataType: "json",
+        type: "POST",
+        data: { invitations: invitations }
+      }).done(function(response) {
+        // Refresh
+        PeopleWidget.loadPeople();
+      });
+
+    }
+  }
+
+  // Set by the template on the server
+  var EventModel = { eventId: {{ event_id }} };
+
+  $.ajaxPrefilter(function(options) {
+    options.headers = { 'x-ep-user': sessionStorage.getItem("user") };
+  });
+
+  $(document).ready(function() {
+    InvitationsWidget.init();
+    DateTimeWidget.init();
+    PeopleWidget.init();
+  });
+
+  function setUser(user) {
+    sessionStorage.setItem("user", user);
+  }
+
+  var map;
+  function initMap() {
+    map = new google.maps.Map(document.getElementById('locationMap'), {
+      center: {lat: 35.683, lng: -83.533},
+      zoom: 8
+    });
+
+    var marker = new google.maps.Marker({
+      position: {lat: 35.683, lng: -83.533},
+      map: map,
+      title: 'Hello World!'
+    });
+
+  }
+
+  </script>
+
+  <script src="https://maps.googleapis.com/maps/api/js?callback=initMap" async defer></script>
+
+{% endblock %}

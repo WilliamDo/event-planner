@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+{% block title %}Organiser{% endblock %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+{% block content %}
+
+  <div class="container">
+    <h1>Organiser</h1>
+    <h2>My Events</h2>
+    <ul id="myEvents"></ul>
+    <h2>Other Events</h2>
+    <div id="otherEvents"></div>
+  </div>
+
+  <script src="https://fb.me/react-0.14.1.js"></script>
+  <script src="https://fb.me/react-dom-0.14.1.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+
+  <script type="text/babel">
+
+  $.ajaxPrefilter(function(options) {
+    options.headers = { 'x-ep-user': sessionStorage.getItem("user"), 'Authorization': sessionStorage.getItem("token") };
+  });
+
+  var EventItem = React.createClass({
+    render: function() {
+      return (
+        <div><a href={"http://localhost:5000/event/" + this.props.eventId}>{this.props.title}</a> {new Date(this.props.start).toString()}</div>
+      );
+    }
+  });
+
+  var EventList = React.createClass({
+
+    getInitialState: function() {
+      return { data: [] };
+    },
+
+    componentDidMount: function() {
+      $.ajax({
+        url: `http://localhost:3000/event/all`,
+        dataType: "json",
+      }).done(function(data) {
+        this.setState({ data: data });
+      }.bind(this));
+    },
+
+    render: function() {
+      var items = this.state.data.map(function(event) {
+        return (<EventItem key={event.id} eventId={event.id} title={event.title} start={event.start} />);
+      });
+      return (
+        <div>{items}</div>
+      );
+    }
+  });
+
+  ReactDOM.render(<EventList />, document.getElementById('otherEvents'));
+
+  </script>
+
+{% endblock %}

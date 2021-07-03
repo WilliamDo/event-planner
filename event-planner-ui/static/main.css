@@ -1,0 +1,74 @@
+
+body {
+  background-color: #FAFAFA;
+}
+
+#locationMap {
+  height: 240px;
+}
+
+#pageContent {
+  margin-top: 10px;
+}
+
+#invitationsContainer, #attendingContainer, #maybeContainer, #declinedContainer {
+  overflow: auto;
+}
+
+.ep-summary-container {
+  box-shadow: 1px 1px 1px #E1E1E1;
+  background-color: #FFFFFF;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+.ep-summary-header {
+  font-size: 1.2em;
+  font-weight: 900;
+}
+
+.ep-post {
+  box-shadow: 1px 1px 1px #E1E1E1;
+  background-color: #FFFFFF;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+.ep-post-header {
+  overflow: auto;
+}
+
+.ep-post-thumbnail {
+  float: left;
+  margin-right: 10px;
+  width: 64px;
+}
+
+.ep-post-name {
+  font-size: 1.2em;
+  font-weight: 900;
+}
+
+.ep-post-content {
+  margin-top: 10px;
+  font-size: 1.2em;
+}
+
+.ep-guest-card {
+  border: 1px solid #E1E1E1;
+  overflow: auto;
+  width: 200px;
+  float: left;
+  background-color: #FFFFFF;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+.ep-guest-card-selected {
+  background-color: greenyellow;
+}
+.ep-guest-card:hover {
+  background-color: aliceblue;
+  cursor: pointer;
+}
