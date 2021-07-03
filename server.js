@@ -68,7 +68,7 @@ app.post('/event', function(req, res) {
 });
 
 app.get('/event/all', function(req, res) {
-  var query = "match (e:Event)-[:ORGANISE]-(:Person {name: {name}}) return {title: e.title, id: id(e), start: e.start} union match (e:Event)-[:INVITE]-(:Person {name: {name}}) return {title: e.title, id: id(e), start: e.start}";
+  var query = "match (e:Event)-[:ORGANISE]-(:Person {name: $name}) return {title: e.title, id: id(e), start: e.start} union match (e:Event)-[:INVITE]-(:Person {name: $name}) return {title: e.title, id: id(e), start: e.start}";
   var params = { name: req.headers['x-ep-user'] };
 
   cypher(query, params, function(err, response) {
@@ -80,7 +80,7 @@ app.get('/event/all', function(req, res) {
 });
 
 app.get('/event/:eventId(\\d+)', function(req, res) {
-  var query = "MATCH (e:Event) WHERE ID(e) = {eventId} RETURN e";
+  var query = "MATCH (e:Event) WHERE ID(e) = $eventId RETURN e";
   var params = { eventId: parseInt(req.params.eventId) };
 
   cypher(query, params, function(err, response) {
@@ -93,7 +93,7 @@ app.get('/event/:eventId(\\d+)', function(req, res) {
 });
 
 app.get('/event/:eventId/posts', function(req, res) {
-  var query = "match (person:Person)-[:POST]-(comment:Comment)-[:ON]-(event:Event) where id(event) = {eventId} return {name: person.name, message: comment.content, url: person.image, timestamp: comment.timestamp} order by comment.timestamp desc";
+  var query = "match (person:Person)-[:POST]-(comment:Comment)-[:ON]-(event:Event) where id(event) = $eventId return {name: person.name, message: comment.content, url: person.image, timestamp: comment.timestamp} order by comment.timestamp desc";
   var params = { eventId: parseInt(req.params.eventId) };
 
   cypher(query, params, function(err, response) {
@@ -125,7 +125,7 @@ app.post('/event/:eventId/rsvp', function(req, res) {
 });
 
 app.get('/event/:eventId/people', function(req, res) {
-  var query = "match (friend:Person)-[invitation:INVITE]-(event:Event) where id(event) = {eventId} return { name: friend.name, invitation: invitation, url: friend.image }";
+  var query = "match (friend:Person)-[invitation:INVITE]-(event:Event) where id(event) = $eventId return { name: friend.name, invitation: invitation, url: friend.image }";
   var params = { eventId: parseInt(req.params.eventId) };
 
   cypher(query, params, function(err, response) {
@@ -139,8 +139,8 @@ app.get('/event/:eventId/people', function(req, res) {
 app.post('/event/:eventId/people', function(req, res) {
   var invitations = req.body.invitations.split(",");
   // FIXME Delete invitations also deletes the RSVPs but we need to keep them!
-  var deleteQuery = "match (:Person)-[invitation:INVITE]-(event:Event) where id(event) = {eventId} delete invitation";
-  var createQuery = "match (p:Person), (event:Event) where id(event) = {eventId} and p.name in {invitations} create (event)-[:INVITE]->(p)";
+  var deleteQuery = "match (:Person)-[invitation:INVITE]-(event:Event) where id(event) = $eventId delete invitation";
+  var createQuery = "match (p:Person), (event:Event) where id(event) = $eventId and p.name in $invitations create (event)-[:INVITE]->(p)";
 
   var eventId = parseInt(req.params.eventId);
   var statements = [{statement: deleteQuery, parameters: {eventId: eventId}}, {statement: createQuery, parameters: {eventId: eventId, invitations: invitations}}];
@@ -152,7 +152,7 @@ app.post('/event/:eventId/people', function(req, res) {
 });
 
 app.get('/friends', function(req, res) {
-  var query = "match (me:Person {name: {name}})-[:FRIEND]-(friend:Person) return { name: friend.name, url: friend.image }";
+  var query = "match (me:Person {name: $name})-[:FRIEND]-(friend:Person) return { name: friend.name, url: friend.image }";
   var params = { name: req.headers['x-ep-user'] };
 
   cypher(query, params, function(err, response) {
